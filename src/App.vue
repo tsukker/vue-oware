@@ -1,19 +1,46 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <img alt="Vue logo" src="./assets/logo.png" />
+
+    <!-- コンポーネント MyModal -->
+    <MyModal @close="closeModal" v-if="modal.visible">
+      <!-- default スロットコンテンツ -->
+      <p>{{ modal.message }}</p>
+      <div v-if="modal.inputVisible">
+        <input
+          v-model="modal.input"
+          pattern="[0-9]*"
+          id="modal-input"
+          @keydown.enter="onClickModalEnter"
+          placeholder="01234"
+        />
+      </div>
+      <!-- /default -->
+      <!-- footer スロットコンテンツ -->
+      <template slot="footer">
+        <button type="button" @click="closeModal" style="color:#cc0000">Cancel</button>
+        <button type="button" @click="onClickModalEnter">Enter</button>
+      </template>
+      <!-- /footer -->
+    </MyModal>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+"use strict";
+import MyModal from "./components/MyModal.vue";
 
 export default {
-  name: 'App',
+  name: "App",
+  data() {
+    return {
+      modal: { visible: false, message: "", inputVisible: false, input: "" }
+    };
+  },
   components: {
-    HelloWorld
+    MyModal
   }
-}
+};
 </script>
 
 <style>
