@@ -4,8 +4,9 @@
       <h1>Oware</h1>
       <section class="auth">
         <!-- ログイン時にはフォームとログアウトボタンを表示 -->
-        <div v-if="user.uid" key="login">
-          [{{ user.displayName }}]
+        <div v-if="userLoggedin" key="login">
+          [
+          <a href="javascript:void(0)" @click.prevent="onClickUserName">{{ this.user.nickname }}</a> ]
           <button type="button" @click="doLogout">Log out</button>
         </div>
         <!-- 未ログイン時にはログインボタンを表示 -->
@@ -34,17 +35,17 @@
       <div v-if="modal.inputVisible">
         <input
           v-model="modal.input"
-          pattern="[0-9]*"
+          :pattern="modal.inputPattern"
           id="modal-input"
-          @keydown.enter="onClickModalEnter"
-          placeholder="01234"
+          @keydown.enter="modal.enterCallback"
+          :placeholder="modal.inputPlaceholder"
         />
       </div>
       <!-- /default -->
       <!-- footer スロットコンテンツ -->
       <template slot="footer">
         <button type="button" @click="closeModal" style="color:#cc0000">Cancel</button>
-        <button type="button" @click="onClickModalEnter">Enter</button>
+        <button type="button" :disabled="modalEnterDisabled" @click="modal.enterCallback">Enter</button>
       </template>
       <!-- /footer -->
     </MyModal>
@@ -64,15 +65,36 @@ export default {
   },
   data() {
     return {
-      modal: { visible: false, message: "", inputVisible: false, input: "" },
+      modal: {
+        visible: false,
+        message: "",
+        inputVisible: false,
+        input: "",
+        inputPlaceholder: "",
+        inputPattern: "",
+        enterCallback: null,
+        isValidInput: null
+      },
       roomId: "",
-      user: {}
+      user: {},
+      room: {}
     };
+  },
+  computed: {
+    userLoggedin: function() {
+      return this.user && this.user.uid;
+    },
+    modalEnterDisabled: function() {
+      return !this.modal.isValidInput();
+    }
   },
   created() {
     firebase.auth().onAuthStateChanged(user => {
       this.user = user ? user : {};
-      if (!user) {
+      if (this.userLoggedin) {
+        console.log("user: ", user);
+        this.changeNickname();
+      } else {
         if (this.roomId !== "") {
           this.leaveRoom(this.roomId);
         }
@@ -82,8 +104,7 @@ export default {
   methods: {
     // ログイン処理
     doLogin() {
-      console.log(this.user);
-      if (this.user.uid) {
+      if (this.userLoggedin) {
         alert("You are already logged in.");
         return;
       }
@@ -159,17 +180,28 @@ export default {
       ref.limitToLast(10).on("child_added", this.moveAdded);
       console.log("ref registered: " + `data/${roomId}/moves`);
     },
-    onClickEnterRoom() {
-      console.log("onClickEnterRoom");
-      Object.assign(this.modal, {
-        visible: true,
-        message: "Room ID",
-        inputVisible: true,
-        input: ""
+    openModal(modalProps) {
+      let props = modalProps;
+      Object.assign(props, {
+        visible: true
       });
+      Object.assign(this.modal, props);
       this.$nextTick().then(() =>
         document.getElementById("modal-input").focus()
       );
+    },
+    onClickEnterRoom() {
+      console.log("onClickEnterRoom");
+      const modalProps = {
+        message: "Room ID",
+        inputVisible: true,
+        input: "",
+        inputPlaceholder: "01234",
+        inputPattern: "[0-9]*",
+        enterCallback: this.onClickModalEnterRoomId,
+        isValidInput: this.isValidRoomId
+      };
+      this.openModal(modalProps);
     },
     leaveRoom(roomId) {
       console.log("leaveRoom");
@@ -189,13 +221,53 @@ export default {
     closeModal() {
       this.modal.visible = false;
     },
-    onClickModalEnter() {
+    onClickModalEnterRoomId() {
       this.enterRoom(this.modal.input);
       this.closeModal();
+    },
+    changeNickname() {
+      if (!this.userLoggedin) {
+        alert("You seem to have not logged in.");
+        return;
+      }
+      const modalProps = {
+        message: "Your nickname",
+        inputVisible: true,
+        input: "",
+        inputPlaceholder: "Your nickname",
+        inputPattern: ".{1,}",
+        enterCallback: this.onClickModalEnterNickname,
+        isValidInput: this.isValidNickname
+      };
+      this.openModal(modalProps);
+    },
+    onClickModalEnterNickname() {
+      this.user.nickname = this.modal.input;
+      this.closeModal();
+    },
+    onClickUserName() {
+      this.changeNickname();
     },
     moveAdded(snapshot) {
       const val = snapshot.val();
       console.log("val: ", val);
+    },
+    isValidRoomId() {
+      const s = this.modal.input;
+      if (s.length !== 5) {
+        return false;
+      }
+      for (let i = 0; i < 5; ++i) {
+        if (s[i] < "0" || "9" < s[i]) {
+          return false;
+        }
+      }
+      return true;
+    },
+    isValidNickname() {
+      const s = this.modal.input;
+      const regex = /^\S.*\S$/;
+      return Boolean(s.match(regex));
     }
   }
 };
