@@ -21,7 +21,7 @@
 .modal {
   &.modal-overlay {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     position: fixed;
     z-index: 30;
@@ -46,6 +46,9 @@
     background: #ccc;
     padding: 10px;
     text-align: right;
+    padding: 5px 20px;
+    display: flex;
+    justify-content: space-between;
   }
 }
 
