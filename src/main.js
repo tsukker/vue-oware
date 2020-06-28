@@ -13,4 +13,7 @@ firebase.analytics();
 
 new Vue({
   render: h => h(App),
+  mounted: function () {
+    document.title = "Oware Online";
+  }
 }).$mount('#app');
