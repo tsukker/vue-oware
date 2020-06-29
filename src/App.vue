@@ -28,6 +28,54 @@
       </section>
     </header>
 
+    <section v-if="!isInValidRoom">Please enter a room first.</section>
+    <section v-else-if="getRoomInfo.status === 'initialized' && !gameStarted" class="select-side">
+      <div>Start game!</div>
+      <button
+        v-for="(side, index) in [0, 1]"
+        :key="index"
+        @click="onClickSelectSide(side)"
+        :disabled="selectSideDisabled(side)"
+      >{{["First", "Second"][side]}}</button>
+    </section>
+    <section v-else-if="gameStarted && getRoomInfo.status === 'gameStarted'" class="game">
+      <div class="game-opposite-nickname">[ {{opposite.nickname}} ]</div>
+      <section class="game-board">
+        <div class="game-board-opposite-scoring-house-wrapper">
+          <div class="game-board-opposite-scoring-house">{{gameBoard.oppositeScoringHouse}}</div>
+        </div>
+        <section class="game-board-middle">
+          <div class="game-board-opposite-houses">
+            <div
+              class="house-wrapper"
+              v-for="(house, index) in gameBoard.oppositeHouses"
+              :key="index"
+            >
+              <div class="house" :class="true ? 'selectable' : 'not-selectable'">{{house}}</div>
+            </div>
+          </div>
+          <div v-if="!gameFinished" class="game-info">{{gameInfoDisplay}}</div>
+          <section v-else class="game-result">
+            <div>{{gameResult}}</div>
+            <button type="button" @click="onClickRematch">Rematch</button>
+          </section>
+          <div class="game-board-my-houses">
+            <div
+              class="house-wrapper"
+              v-for="(house, index) in gameBoard.myHouses"
+              :key="index"
+              @click="onClickHouse(index)"
+            >
+              <div class="house" :class="true ? 'selectable' : 'not-selectable'">{{house}}</div>
+            </div>
+          </div>
+        </section>
+        <div class="game-board-my-scoring-house-wrapper">
+          <div class="game-board-my-scoring-house">{{gameBoard.myScoringHouse}}</div>
+        </div>
+      </section>
+    </section>
+
     <!-- コンポーネント MyModal -->
     <MyModal @close="closeModal" v-if="modal.visible">
       <!-- default スロットコンテンツ -->
