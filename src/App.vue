@@ -385,4 +385,11 @@ export default {
   justify-content: center;
   font-size: 1.5em;
 }
+.game-result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5em;
+}
 </style>
