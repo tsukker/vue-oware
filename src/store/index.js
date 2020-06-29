@@ -18,6 +18,9 @@ export default new Vuex.Store({
     },
     switchTurn(state) {
       state.turn = 1 - state.turn;
+    },
+    setSide(state, side) {
+      state.mySide = side;
     }
   }
 });
