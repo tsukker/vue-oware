@@ -75,9 +75,9 @@ export default {
         enterCallback: null,
         isValidInput: null
       },
+      room: {},
       roomId: "",
-      user: {},
-      room: {}
+      user: {}
     };
   },
   computed: {
@@ -93,6 +93,7 @@ export default {
       this.user = user ? user : {};
       if (this.userLoggedin) {
         console.log("user: ", user);
+        this.user.nickname = "Nickname";
         this.changeNickname();
       } else {
         if (this.roomId !== "") {
