@@ -6,8 +6,12 @@
         <!-- ログイン時にはフォームとログアウトボタンを表示 -->
         <div v-if="userLoggedin" key="login">
           [
-          <a href="javascript:void(0)" @click.prevent="onClickUserName">{{ this.user.nickname }}</a> ]
-          <button type="button" @click="doLogout">Log out</button>
+          <a href="javascript:void(0)" @click.prevent="onClickUserName">{{ this.user.nickname }}</a>
+          ({{this.user.email.match(/^[^@]*/)[0]}}) ]
+          <button
+            type="button"
+            @click="doLogout"
+          >Log out</button>
         </div>
         <!-- 未ログイン時にはログインボタンを表示 -->
         <div v-else key="logout">
