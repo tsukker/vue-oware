@@ -122,8 +122,20 @@ export default {
       const ref = firebase.database().ref(path);
       ref.update({
         createdAt: Date.now(),
-        owner: firebase.auth().currentUser.uid,
-        roomId: roomId
+        ownerId: firebase.auth().currentUser.uid,
+        roomId: roomId,
+        status: "initialized",
+        player0: {
+          assigned: false,
+          id: "",
+          nickname: ""
+        },
+        player1: {
+          assigned: false,
+          id: "",
+          nickname: ""
+        },
+        moves: []
       });
       return roomId;
     },
@@ -148,7 +160,8 @@ export default {
             setTimeout(() => {
               if (
                 snapshot.exists() &&
-                (!val.owner || val.owner !== firebase.auth().currentUser.uid)
+                (!val.ownerId ||
+                  val.ownerId !== firebase.auth().currentUser.uid)
               ) {
                 resolve({ done: false, value: generateRandomRoomId() });
               } else {
