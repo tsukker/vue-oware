@@ -5,11 +5,19 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    count: 0
+    moves: [],
+    mySide: 0,
+    turn: 0,
   },
   mutations: {
-    increment(state) {
-      state.count++;
+    clearMoves(state) {
+      state.moves = [];
+    },
+    pushMove(state, move) {
+      state.moves.push(move);
+    },
+    switchTurn(state) {
+      state.turn = 1 - state.turn;
     }
   }
 });
