@@ -273,6 +273,14 @@ export default {
 };
 </script>
 
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+</style>
+
 <style scoped>
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
@@ -280,18 +288,100 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-}
-* {
-  margin: 0;
-  box-sizing: border-box;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 .header {
   background: #3ab383;
-  margin-bottom: 1em;
-  padding: 0.4em 0.8em;
+  margin-bottom: 1vh;
+  padding: 2vh 2vw;
   color: #fff;
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+.game {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 1em;
+  margin: 0vh 4vw 14vh 4vw;
+}
+.game-opposite-nickname {
+  display: flex;
+  margin-bottom: 10vh;
+}
+.game-board {
+  height: 100%;
+  width: 100%;
+  display: grid;
+  grid-template: 1fr / 1fr 6fr 1fr;
+  align-items: center;
+  padding: 0vh 0vw 0vh 0vw;
+}
+.game-board-opposite-scoring-house-wrapper,
+.game-board-my-scoring-house-wrapper {
+  height: 100%;
+  align-items: center;
+}
+.game-board-opposite-scoring-house-wrapper {
+  padding: 0vh 0vw 20vh 0vw;
+}
+.game-board-my-scoring-house-wrapper {
+  padding: 20vh 0vw 0vh 0vw;
+}
+.game-board-opposite-scoring-house,
+.game-board-my-scoring-house {
+  height: 100%;
+  border: solid 2px #333333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.7em;
+}
+.game-board-opposite-scoring-house {
+  margin: 0vh 1vw 0vh 1vw;
+}
+.game-board-my-scoring-house {
+  margin: 0vh 1vw 0vh 1vw;
+}
+.game-board-middle {
+  height: 100%;
+  display: grid;
+  grid-template: 3fr 2fr 3fr / 1fr;
+  margin: 0vh 1vw 0vh 1vw;
+}
+.game-board-opposite-houses,
+.game-board-my-houses {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+.game-board-opposite-houses {
+  padding: 0vh 1vw 2vh 1vw;
+}
+.game-board-my-houses {
+  padding: 2vh 1vw 0vh 1vw;
+}
+.house-wrapper {
+  flex: 1;
+  margin: 0vh 1vw;
+  align-items: center;
+  border: solid 2px #333333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.house {
+  flex-grow: 1fr;
+  font-size: 1.5em;
+}
+.game-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5em;
 }
 </style>
