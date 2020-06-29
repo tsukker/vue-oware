@@ -56,7 +56,12 @@
 "use strict";
 import firebase from "firebase";
 import MyModal from "./components/MyModal.vue";
-import { generateRandomRoomId, isValidRoomId } from "./utility.js";
+import {
+  generateRandomRoomId,
+  isValidRoomId,
+  owareBoard,
+  isValidMove
+} from "./utility.js";
 
 export default {
   name: "App",
@@ -82,11 +87,163 @@ export default {
     };
   },
   computed: {
+    gameBoard() {
+      let board = owareBoard(this.$store.state.moves);
+      let oppositeSide = 1 - this.$store.state.mySide;
+      return {
+        entireHouses: board,
+        myHouses: board.slice(
+          this.$store.state.mySide * 7,
+          this.$store.state.mySide * 7 + 6
+        ),
+        myScoringHouse: board[this.$store.state.mySide * 7 + 6],
+        oppositeHouses: board
+          .slice(oppositeSide * 7, oppositeSide * 7 + 6)
+          .reverse(),
+        oppositeScoringHouse: board[oppositeSide * 7 + 6]
+      };
+    },
+    myHouses() {
+      return this.computed
+        .entireBoard()
+        .slice(this.$store.turn * 7, this.$store.turn * 7 + 6);
+    },
+    gameStatus() {
+      return { initialized: 0, registration: 1, playing: 2, finished: 3 };
+    },
+    opposite() {
+      return {
+        nickname: this.room[`player${1 - this.$store.state.mySide}`].nickname
+      };
+    },
+    modalEnterDisabled() {
+      return !this.modal.isValidInput();
+    },
     userLoggedin: function() {
       return this.user && this.user.uid;
     },
-    modalEnterDisabled: function() {
-      return !this.modal.isValidInput();
+    isInValidRoom: function() {
+      return isValidRoomId(this.roomId);
+    },
+    getRoomInfo: function() {
+      return this.room;
+    },
+    selectSideDisabled() {
+      return function(side) {
+        if (this.$store.state.mySide != -1) {
+          return true;
+        }
+        return this.room[`player${side}`].assigned;
+      };
+    },
+    gameStarted() {
+      if (!this.room.roomId) {
+        return false;
+      }
+      if (this.room.status === "gameStarted") {
+        return true;
+      }
+      if (this.room.status === "gameReady") {
+        this.$store.commit("clearMoves");
+        if (this.room.ownerId === firebase.auth().currentUser.uid) {
+          const refRoom = firebase.database().ref(`data/${this.roomId}`);
+          refRoom.update({ status: "gameStarted" });
+          return true;
+        }
+      }
+      console.log("this.room: ", this.room);
+      console.log(
+        "firebase.auth().currentUser.uid: ",
+        firebase.auth().currentUser.uid
+      );
+      if (this.room.ownerId !== firebase.auth().currentUser.uid) {
+        return false;
+      }
+      let gameReady = true;
+      for (let i = 0; i < 2; ++i) {
+        if (!this.room[`player${i}`].assigned) {
+          gameReady = false;
+          break;
+        }
+      }
+      if (gameReady) {
+        const refRoom = firebase.database().ref(`data/${this.roomId}`);
+        refRoom.update({ status: "gameReady" });
+      }
+      return false;
+    },
+    lastSide() {
+      let side = 0;
+      const movesLength = this.$store.state.moves.length;
+      if (
+        movesLength === 0 ||
+        this.$store.state.moves[movesLength - 1].playerSide === 1
+      ) {
+        side = 1;
+      }
+      return side;
+    },
+    isMyTurn() {
+      let nextSide = 1 - this.lastSide;
+      let mySide = this.$store.state.mySide;
+      return (
+        nextSide === mySide &&
+        this.room[`player${mySide}`].id === firebase.auth().currentUser.uid
+      );
+    },
+    gameInfoDisplay() {
+      let message = "Opposite Turn";
+      if (this.isMyTurn) {
+        message = "Your Turn";
+      }
+      return message;
+    },
+    gameFinished() {
+      if (
+        this.gameBoard.myScoringHouse > 24 ||
+        this.gameBoard.oppositeScoringHouse > 24
+      ) {
+        return true;
+      }
+      let nextSide = 1 - this.lastSide;
+      let validMoveExists = false;
+      let move = { selected: -1, playerSide: nextSide };
+      for (let index = nextSide * 7; index < nextSide * 7 + 6; ++index) {
+        move.selected = index;
+        if (isValidMove(this.gameBoard.entireHouses, move)) {
+          validMoveExists = true;
+          break;
+        }
+      }
+      if (!validMoveExists) {
+        return true;
+      }
+      return false;
+    },
+    gameResult() {
+      if (!this.gameFinished) {
+        return;
+      }
+      let myAllHouses = this.gameBoard.myHouses.concat(
+        this.gameBoard.myScoringHouse
+      );
+      let myTotal = myAllHouses.reduce(function(accumulator, currentValue) {
+        return accumulator + currentValue;
+      }, 0);
+      console.log(
+        "this.gameBoard.myHouses, myTotal: ",
+        this.gameBoard.myHouses,
+        myTotal
+      );
+      let result = "";
+      if (myTotal == 24) {
+        result = "Draw";
+      } else if (myTotal > 24) {
+        result = "Win";
+      } else {
+        result = "Lose";
+      }
+      return result;
     }
   },
   created() {
@@ -296,6 +453,57 @@ export default {
       const s = this.modal.input;
       const regex = /^\S.*\S$/;
       return Boolean(s.match(regex));
+    },
+    onClickSelectSide(side) {
+      const ref = firebase.database().ref(`data/${this.roomId}`);
+      console.log(ref);
+      ref.update({
+        [`player${side}`]: {
+          assigned: true,
+          id: firebase.auth().currentUser.uid,
+          nickname: this.user.nickname
+        }
+      });
+      this.$store.commit("setSide", side);
+    },
+    onClickHouse(index) {
+      console.log("index: ", index);
+      if (this.gameFinished) {
+        return;
+      }
+      if (!this.isMyTurn) {
+        return;
+      }
+      let houseIndex = this.$store.state.mySide * 7 + index;
+      let move = { selected: houseIndex, playerSide: this.$store.state.mySide };
+      if (
+        isValidRoomId(this.roomId) &&
+        isValidMove(this.gameBoard.entireHouses, move)
+      ) {
+        const ref = firebase.database().ref(`data/${this.roomId}/moves`);
+        ref.push(move);
+      }
+    },
+    onClickRematch() {
+      if (this.room.ownerId !== firebase.auth().currentUser.uid) {
+        return;
+      }
+      let path = `data/${this.roomId}`;
+      const ref = firebase.database().ref(path);
+      ref.update({
+        status: "initialized",
+        player0: {
+          assigned: false,
+          id: "",
+          nickname: ""
+        },
+        player1: {
+          assigned: false,
+          id: "",
+          nickname: ""
+        },
+        moves: []
+      });
     }
   }
 };
