@@ -65,6 +65,7 @@ export default {
   },
   data() {
     return {
+      databaseRefs: [],
       modal: {
         visible: false,
         message: "",
@@ -190,9 +191,21 @@ export default {
       }
       this.roomId = roomId;
       this.chat = [];
-      const ref = firebase.database().ref(`data/${roomId}/moves`);
-      ref.limitToLast(10).on("child_added", this.moveAdded);
+      const refRoom = firebase.database().ref(`data/${roomId}`);
+      refRoom.on("value", this.fetchRoomInfo);
+      this.databaseRefs.push(refRoom);
+      console.log("ref registered: " + `data/${roomId}`);
+      const refMoves = firebase.database().ref(`data/${roomId}/moves`);
+      refMoves.on("child_added", this.moveAdded);
+      this.databaseRefs.push(refMoves);
       console.log("ref registered: " + `data/${roomId}/moves`);
+    },
+    fetchRoomInfo(snapshot) {
+      this.room = snapshot.val();
+      console.log(this.room);
+      if (this.room.ownerId !== firebase.auth().currentUser.uid) {
+        return;
+      }
     },
     openModal(modalProps) {
       let props = modalProps;
@@ -223,11 +236,11 @@ export default {
         console.log("roomId and this.roomId differ.");
         return;
       }
-      const ref = firebase.database().ref(`data/${roomId}/moves`);
-      ref.limitToLast(10).off("child_added", this.moveAdded);
-      console.log("ref un-registered: " + `data/${roomId}/moves`);
+      const refRoom = firebase.database().ref(`data/${roomId}`);
+      refRoom.on("value", this.fetchRoomInfo);
+      const refMoves = firebase.database().ref(`data/${roomId}/moves`);
+      refMoves.off("child_added", this.moveAdded);
       this.roomId = "";
-      this.chat = [];
     },
     onClickLeaveRoom() {
       this.leaveRoom(this.roomId);
@@ -264,7 +277,8 @@ export default {
     },
     moveAdded(snapshot) {
       const val = snapshot.val();
-      console.log("val: ", val);
+      console.log("moveAdded: ", val);
+      this.$store.commit("pushMove", val);
     },
     isValidRoomId() {
       const s = this.modal.input;
