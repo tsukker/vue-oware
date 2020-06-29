@@ -6,7 +6,7 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     moves: [],
-    mySide: 0,
+    mySide: -1,
     turn: 0,
   },
   mutations: {
