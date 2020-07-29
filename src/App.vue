@@ -537,6 +537,7 @@ export default {
       }
     },
     onClickRematch() {
+      this.$store.commit("setSide", -1);
       if (this.room.ownerId !== firebase.auth().currentUser.uid) {
         return;
       }
