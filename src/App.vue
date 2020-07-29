@@ -58,7 +58,11 @@
               <div class="house" :class="true ? 'selectable' : 'not-selectable'">{{house}}</div>
             </div>
           </div>
-          <div v-if="!gameFinished" class="game-info">{{gameInfoDisplay}}</div>
+          <div
+            v-if="!gameFinished"
+            class="game-info"
+            v-bind:class="isMyTurn ? 'game-info-my-turn' : ''"
+          >{{gameInfoDisplay}}</div>
           <section v-else class="game-result">
             <div>{{gameResult}}</div>
             <button type="button" @click="onClickRematch">Rematch</button>
@@ -668,11 +672,25 @@ export default {
   font-size: 1.5em;
 }
 .game-info {
+  color: gray;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.5em;
 }
+.game-info-my-turn {
+  color: dodgerblue;
+  animation: blink 1.2s ease-in-out infinite alternate;
+}
+@keyframes blink {
+  0% {
+    opacity: 0.1;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
 .game-result {
   display: flex;
   flex-direction: column;
