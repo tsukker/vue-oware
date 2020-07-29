@@ -32,7 +32,7 @@
       </section>
     </header>
 
-    <section v-if="!isInValidRoom">Please enter a room first.</section>
+    <section v-if="!isInValidRoom">Please login with Google account and create/enter a room.</section>
     <section v-else-if="getRoomInfo.status === 'initialized' && !gameStarted" class="select-side">
       <div>Start game!</div>
       <button
