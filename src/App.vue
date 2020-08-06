@@ -116,13 +116,13 @@ import {
   generateRandomRoomId,
   isValidRoomId,
   owareBoard,
-  isValidMove
+  isValidMove,
 } from "./utility.js";
 
 export default {
   name: "App",
   components: {
-    MyModal
+    MyModal,
   },
   data() {
     return {
@@ -135,11 +135,11 @@ export default {
         inputPlaceholder: "",
         inputPattern: "",
         enterCallback: null,
-        isValidInput: null
+        isValidInput: null,
       },
       room: {},
       roomId: "",
-      user: {}
+      user: {},
     };
   },
   computed: {
@@ -156,7 +156,7 @@ export default {
         oppositeHouses: board
           .slice(oppositeSide * 7, oppositeSide * 7 + 6)
           .reverse(),
-        oppositeScoringHouse: board[oppositeSide * 7 + 6]
+        oppositeScoringHouse: board[oppositeSide * 7 + 6],
       };
     },
     myHouses() {
@@ -169,23 +169,23 @@ export default {
     },
     opposite() {
       return {
-        nickname: this.room[`player${1 - this.$store.state.mySide}`].nickname
+        nickname: this.room[`player${1 - this.$store.state.mySide}`].nickname,
       };
     },
     modalEnterDisabled() {
       return !this.modal.isValidInput();
     },
-    userLoggedin: function() {
+    userLoggedin: function () {
       return this.user && this.user.uid;
     },
-    isInValidRoom: function() {
+    isInValidRoom: function () {
       return isValidRoomId(this.roomId);
     },
-    getRoomInfo: function() {
+    getRoomInfo: function () {
       return this.room;
     },
     selectSideDisabled() {
-      return function(side) {
+      return function (side) {
         if (this.$store.state.mySide != -1) {
           return true;
         }
@@ -283,7 +283,7 @@ export default {
       let myAllHouses = this.gameBoard.myHouses.concat(
         this.gameBoard.myScoringHouse
       );
-      let myTotal = myAllHouses.reduce(function(accumulator, currentValue) {
+      let myTotal = myAllHouses.reduce(function (accumulator, currentValue) {
         return accumulator + currentValue;
       }, 0);
       console.log(
@@ -300,10 +300,10 @@ export default {
         result = "Lose";
       }
       return result;
-    }
+    },
   },
   created() {
-    firebase.auth().onAuthStateChanged(user => {
+    firebase.auth().onAuthStateChanged((user) => {
       this.user = user ? user : {};
       if (this.userLoggedin) {
         console.log("user: ", user);
@@ -342,21 +342,21 @@ export default {
         player0: {
           assigned: false,
           id: "",
-          nickname: ""
+          nickname: "",
         },
         player1: {
           assigned: false,
           id: "",
-          nickname: ""
+          nickname: "",
         },
-        moves: []
+        moves: [],
       });
       return roomId;
     },
     onClickCreateRoom() {
       // https://qiita.com/masato/items/f5c3be5da1040332c88c
       function loop(promise, fn) {
-        return promise.then(fn).then(function(wrapper) {
+        return promise.then(fn).then(function (wrapper) {
           console.log("wrapper: ", wrapper);
           return !wrapper.done
             ? loop(Promise.resolve(wrapper.value), fn)
@@ -367,10 +367,10 @@ export default {
         let path = `data/${roomId}`;
         console.log("path: " + path);
         const ref = firebase.database().ref(path);
-        return ref.once("value").then(snapshot => {
+        return ref.once("value").then((snapshot) => {
           const val = snapshot.val();
           console.log("val: ", val);
-          return new Promise(resolve => {
+          return new Promise((resolve) => {
             setTimeout(() => {
               if (
                 snapshot.exists() &&
@@ -385,7 +385,7 @@ export default {
           });
         });
       }
-      loop(Promise.resolve(generateRandomRoomId()), check).then(roomId => {
+      loop(Promise.resolve(generateRandomRoomId()), check).then((roomId) => {
         console.log("roomId: ", roomId);
         this.createRoom(roomId);
         this.enterRoom(roomId);
@@ -423,7 +423,7 @@ export default {
     openModal(modalProps) {
       let props = modalProps;
       Object.assign(props, {
-        visible: true
+        visible: true,
       });
       Object.assign(this.modal, props);
       this.$nextTick().then(() =>
@@ -439,7 +439,7 @@ export default {
         inputPlaceholder: "01234",
         inputPattern: "[0-9]*",
         enterCallback: this.onClickModalEnterRoomId,
-        isValidInput: this.isValidRoomId
+        isValidInput: this.isValidRoomId,
       };
       this.openModal(modalProps);
     },
@@ -477,7 +477,7 @@ export default {
         inputPlaceholder: "Your nickname",
         inputPattern: ".{1,}",
         enterCallback: this.onClickModalEnterNickname,
-        isValidInput: this.isValidNickname
+        isValidInput: this.isValidNickname,
       };
       this.openModal(modalProps);
     },
@@ -517,8 +517,8 @@ export default {
         [`player${side}`]: {
           assigned: true,
           id: firebase.auth().currentUser.uid,
-          nickname: this.user.nickname
-        }
+          nickname: this.user.nickname,
+        },
       });
       this.$store.commit("setSide", side);
     },
@@ -552,17 +552,17 @@ export default {
         player0: {
           assigned: false,
           id: "",
-          nickname: ""
+          nickname: "",
         },
         player1: {
           assigned: false,
           id: "",
-          nickname: ""
+          nickname: "",
         },
-        moves: []
+        moves: [],
       });
-    }
-  }
+    },
+  },
 };
 </script>
 
