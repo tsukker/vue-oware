@@ -449,7 +449,7 @@ export default {
         return;
       }
       const refRoom = firebase.database().ref(`data/${roomId}`);
-      refRoom.on("value", this.fetchRoomInfo);
+      refRoom.off("value", this.fetchRoomInfo);
       const refMoves = firebase.database().ref(`data/${roomId}/moves`);
       refMoves.off("child_added", this.moveAdded);
       this.roomId = "";
