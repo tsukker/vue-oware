@@ -197,6 +197,9 @@ export default {
         return false;
       }
       if (this.room.status === "gameStarted") {
+        if (![0, 1].includes(this.$store.state.mySide)) {
+          this.$store.commit("setSide", 1);
+        }
         return true;
       }
       if (this.room.status === "gameReady") {
@@ -242,15 +245,26 @@ export default {
     isMyTurn() {
       let nextSide = 1 - this.lastSide;
       let mySide = this.$store.state.mySide;
-      return (
-        nextSide === mySide &&
-        this.room[`player${mySide}`].id === firebase.auth().currentUser.uid
-      );
+      return nextSide === mySide;
     },
     gameInfoDisplay() {
-      let message = "Opposite Turn";
-      if (this.isMyTurn) {
-        message = "Your Turn";
+      let message;
+      if (
+        [this.room.player0.id, this.room.player1.id].includes(
+          firebase.auth().currentUser.uid
+        )
+      ) {
+        if (this.isMyTurn) {
+          message = "Your Turn";
+        } else {
+          message = "Opposite Turn";
+        }
+      } else {
+        if (this.isMyTurn) {
+          message = "This Player's Turn";
+        } else {
+          message = "Opposite Player's Turn";
+        }
       }
       return message;
     },
