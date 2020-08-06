@@ -438,7 +438,9 @@ export default {
         inputPlaceholder: "01234",
         inputPattern: "[0-9]*",
         enterCallback: this.onClickModalEnterRoomId,
-        isValidInput: this.isValidRoomId,
+        isValidInput: () => {
+          return isValidRoomId(this.modal.input);
+        },
       };
       this.openModal(modalProps);
     },
@@ -469,6 +471,7 @@ export default {
         alert("You don't seem to have been logged in.");
         return;
       }
+      // Modal properties
       const modalProps = {
         message: "Your nickname",
         inputVisible: true,
@@ -491,18 +494,6 @@ export default {
       const val = snapshot.val();
       console.log("moveAdded: ", val);
       this.$store.commit("pushMove", val);
-    },
-    isValidRoomId() {
-      const s = this.modal.input;
-      if (s.length !== 5) {
-        return false;
-      }
-      for (let i = 0; i < 5; ++i) {
-        if (s[i] < "0" || "9" < s[i]) {
-          return false;
-        }
-      }
-      return true;
     },
     isValidNickname() {
       const s = this.modal.input;
