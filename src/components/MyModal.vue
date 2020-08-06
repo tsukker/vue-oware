@@ -52,11 +52,10 @@
   }
 }
 
-// オーバーレイのトランジション
+// transition overlay
 .modal-enter-active, .modal-leave-active {
   transition: opacity 0.1s;
 
-  // オーバーレイに包含されているモーダルウィンドウのトランジション
   .modal-window {
     transition: opacity 0.1s;
   }

@@ -3,7 +3,7 @@
     <header class="header">
       <h1>Oware</h1>
       <section class="auth">
-        <!-- ログイン時にはフォームとログアウトボタンを表示 -->
+        <!-- Show nickname and logout button if logged-in -->
         <div v-if="userLoggedin" key="login">
           [
           <a href="javascript:void(0)" @click.prevent="onClickUserName">{{ this.user.nickname }}</a>
@@ -13,7 +13,7 @@
             @click="doLogout"
           >Log out</button>
         </div>
-        <!-- 未ログイン時にはログインボタンを表示 -->
+        <!-- Show login button if not logged-in -->
         <div v-else key="logout">
           <button type="button" @click="doLogin">Log in</button>
         </div>
@@ -33,6 +33,7 @@
     </header>
 
     <section v-if="!isInValidRoom">Please login with Google account and create/enter a room.</section>
+    <!-- Show buttons for selecting side -->
     <section v-else-if="getRoomInfo.status === 'initialized' && !gameStarted" class="select-side">
       <div>Start game!</div>
       <button
@@ -42,6 +43,7 @@
         :disabled="selectSideDisabled(side)"
       >{{["First", "Second"][side]}}</button>
     </section>
+    <!-- Show opposite nickname and game board if game started -->
     <section v-else-if="gameStarted && getRoomInfo.status === 'gameStarted'" class="game">
       <div class="game-opposite-nickname">[ {{opposite.nickname}} ]</div>
       <section class="game-board">
@@ -84,9 +86,9 @@
       </section>
     </section>
 
-    <!-- コンポーネント MyModal -->
+    <!-- MyModal component-->
     <MyModal @close="closeModal" v-if="modal.visible">
-      <!-- default スロットコンテンツ -->
+      <!-- default slot content -->
       <p>{{ modal.message }}</p>
       <div v-if="modal.inputVisible">
         <input
@@ -97,13 +99,11 @@
           :placeholder="modal.inputPlaceholder"
         />
       </div>
-      <!-- /default -->
-      <!-- footer スロットコンテンツ -->
+      <!-- footer slot content -->
       <template slot="footer">
         <button type="button" @click="closeModal" style="color:#cc0000">Cancel</button>
         <button type="button" :disabled="modalEnterDisabled" @click="modal.enterCallback">Enter</button>
       </template>
-      <!-- /footer -->
     </MyModal>
   </div>
 </template>
@@ -317,7 +317,6 @@ export default {
     });
   },
   methods: {
-    // ログイン処理
     doLogin() {
       if (this.userLoggedin) {
         alert("You are already logged in.");
@@ -326,7 +325,6 @@ export default {
       const provider = new firebase.auth.GoogleAuthProvider();
       firebase.auth().signInWithPopup(provider);
     },
-    // ログアウト処理
     doLogout() {
       firebase.auth().signOut();
     },
@@ -354,13 +352,13 @@ export default {
       return roomId;
     },
     onClickCreateRoom() {
-      // https://qiita.com/masato/items/f5c3be5da1040332c88c
+      // https://qiita.com/masato/items/f5c3be5da1040332c88c#es6-native-promiseのwhile-ループ
       function loop(promise, fn) {
         return promise.then(fn).then(function (wrapper) {
           console.log("wrapper: ", wrapper);
-          return !wrapper.done
-            ? loop(Promise.resolve(wrapper.value), fn)
-            : wrapper.value;
+          return wrapper.done
+            ? wrapper.value
+            : loop(Promise.resolve(wrapper.value), fn);
         });
       }
       function check(roomId) {
@@ -404,6 +402,7 @@ export default {
       }
       this.roomId = roomId;
       this.chat = [];
+      // Obtain Realtime Database refs
       const refRoom = firebase.database().ref(`data/${roomId}`);
       refRoom.on("value", this.fetchRoomInfo);
       this.databaseRefs.push(refRoom);
@@ -467,7 +466,7 @@ export default {
     },
     changeNickname() {
       if (!this.userLoggedin) {
-        alert("You seem to have not logged in.");
+        alert("You don't seem to have been logged in.");
         return;
       }
       const modalProps = {
@@ -566,6 +565,7 @@ export default {
 };
 </script>
 
+<!-- http://www.htmq.com/tutorial/08_5.shtml -->
 <style>
 * {
   margin: 0;
