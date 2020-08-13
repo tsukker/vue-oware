@@ -4,6 +4,12 @@
 
 You need to setup Firebase configuration beforehand to build the application.
 
+Please enable following features in the Firebase console:
+
+- Authentication (Sign-in method: Google)
+- Realtime Database
+- [Optional] Hosting
+
 ### `src/firebaseConfig.js`
 
 This application uses Firebase Authentication, and Firebase Database.
