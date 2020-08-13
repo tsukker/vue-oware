@@ -31,7 +31,7 @@ See also [the document of config object](https://firebase.google.com/docs/web/se
 
 You can use Firebase Hosting.
 
-### Initialization
+#### Initialization
 
 ```shell
 $ firebase init hosting
@@ -67,6 +67,12 @@ Contents of `firebase.json` should be like:
 ```
 
 See also `Hosting > Manage site > Instructions` in Firebase console.
+
+#### Deployment
+
+```shell
+firebase deploy
+```
 
 ## Project setup
 
