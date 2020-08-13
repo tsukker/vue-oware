@@ -30,7 +30,13 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 
 ## Firebase setup
 
-### Command line
+You need to setup Firebase configuration beforehand to build the application.
+
+### Firebase Hosting
+
+You can use Firebase Hosting.
+
+### Initialization
 
 ```shell
 $ firebase init hosting
@@ -41,11 +47,39 @@ $ firebase init hosting
 
 #### Hosting site option
 
-Add line `"site": "site-name",` into firebase.json to specify hosting site.
+Add a line `"site": "site-name",` into `firebase.json` to specify the hosting site.
 
-See also `Hosting > Manage site > Instructions` on Firebase console.
+Contents of `firebase.json` should be like:
+
+```json:firebase.json
+{
+  "hosting": {
+    "site": "site-name",
+    "public": "dist",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
+}
+```
+
+See also `Hosting > Manage site > Instructions` in Firebase console.
 
 ### `src/firebaseConfig.js`
+
+This application uses Firebase Authentication, and Firebase Database.
+Add Firebase information into `src` directory to use them.
+You can check this json-style config on the application settings in Firebase console.
+
+Contents of `src/firebaseConfig.js` should be like:
 
 ```js:src/firebaseConfig.js
 export const firebaseConfig = {
@@ -59,3 +93,5 @@ export const firebaseConfig = {
   measurementId: "MEASUREMENT_ID"
 };
 ```
+
+See also [the document of config object](https://firebase.google.com/docs/web/setup#config-object) (Firebase > Docs > Guides).
