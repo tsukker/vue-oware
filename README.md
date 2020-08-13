@@ -1,5 +1,11 @@
 # vue-oware
 
+## Requirements
+
+- Node.js
+- npm
+- [Optional] [Firebase CLI](https://firebase.google.com/docs/cli)
+
 ## Firebase setup
 
 You need to setup Firebase configuration beforehand to build the application.
