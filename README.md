@@ -3,7 +3,7 @@
 ## Requirements
 
 - Node.js
-- npm
+  - npm
 - [Optional] [Firebase CLI](https://firebase.google.com/docs/cli)
 
 ## Firebase setup
@@ -54,7 +54,7 @@ $ firebase init hosting
 
 #### Hosting site option
 
-Add a line `"site": "site-name",` into `firebase.json` to specify the hosting site.
+Add a line `"site": "site-name",` into `firebase.json` if you want/need to specify the hosting site.
 
 Contents of `firebase.json` should be like:
 
